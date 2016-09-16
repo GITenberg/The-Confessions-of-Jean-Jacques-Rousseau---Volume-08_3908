@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: f5OnQLHHDokhzzvdbGUSNG0bjwkB9YurMT8jBqNaMxv7WlFm7oPF0uK9k3MF0ieCrXsqZTLG9m4TUb36P9JIkqUHNqo/kpQLOFQ/KIxhPiAD9hwEt07gll7dFMFgMnMPJnDcUEvhii9HCP4jStdwwOxSUYfv8VWR5md0kFm/UF8oL8Lu18nZBJ9DNohrOgH9nEQJoDRspgaczU0wNZmBYGNuHb5VIJf8bY+TS82YYmnqeOnstu0UehLJfMFGQNNP+G4eqXq3ndZYboEhAiZSVEORYcKP8/o4ZV3nfV+YrtK92BIiDFdWYsKw/KszDjojNgvUgFm8TLNzrq1y/S6PVDCvZN072enFv3B4lVbWdk6qgdPS8RP8LB4vrwrZqStPEwOBevxxjCobhJkplB47ZHhbqvzwHPnCDCkbqR3tejYCjPevAR/2d0zCPRr3TEHm/NU88BnD9O5ks3J5j8uWgrXQ1AmnZ4d/h9MUq7PqlPZq/PZWPozdGg2O3QJBFGpRIVhc/J4D26xc6MjFOWxqTVzXmghOF62R5trAupiz/TOxJv/jB39ZbjyDTGYp9Q06MPYE5yvQ545SWJ++wAuQQ3x7Z2PCWyIkW+JUppargiXG6iGawkkbG1B1QZPqO/mglIOvzY0fgYZBHrUc+95pYT9WGaP5TajrVYJo6OrwmKo=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Confessions-of-Jean-Jacques-Rousseau---Volume-08_3908
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
